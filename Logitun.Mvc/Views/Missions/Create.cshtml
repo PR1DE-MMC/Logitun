@@ -1,0 +1,113 @@
+@model Logitun.Mvc.ViewModels.MissionCreateViewModel
+@using Logitun.Shared.DTOs
+@{
+    ViewData["Title"] = "Create Mission";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Create Mission</h1>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form asp-controller="Missions" asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                }
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="TruckId" class="form-label">Truck</label>
+                            <select asp-for="TruckId" class="form-select">
+                                <option value="">-- Select Truck --</option>
+                                @foreach (var truck in Model.AvailableTrucks)
+                                {
+                                    <option value="@truck.TruckId">@truck.PlateNumber</option>
+                                }
+                            </select>
+                            <span asp-validation-for="TruckId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="OriginLocationId" class="form-label">Origin Location</label>
+                            <select asp-for="OriginLocationId" class="form-select">
+                                <option value="">-- Select Origin --</option>
+                                @foreach (var location in Model.AvailableLocations)
+                                {
+                                    <option value="@location.LocationId">@location.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="OriginLocationId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="DestinationLocationId" class="form-label">Destination Location</label>
+                            <select asp-for="DestinationLocationId" class="form-select">
+                                <option value="">-- Select Destination --</option>
+                                @foreach (var location in Model.AvailableLocations)
+                                {
+                                    <option value="@location.LocationId">@location.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="DestinationLocationId" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="StartDatetime" class="form-label">Start Date</label>
+                            <input asp-for="StartDatetime" class="form-control" type="datetime-local" />
+                            <span asp-validation-for="StartDatetime" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="EndDatetime" class="form-label">End Date</label>
+                            <input asp-for="EndDatetime" class="form-control" type="datetime-local" />
+                            <span asp-validation-for="EndDatetime" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="DistanceKm" class="form-label">Distance (km)</label>
+                            <input asp-for="DistanceKm" class="form-control" type="number" step="0.01" />
+                            <span asp-validation-for="DistanceKm" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="PayloadWeight" class="form-label">Payload Weight (kg)</label>
+                            <input asp-for="PayloadWeight" class="form-control" type="number" step="0.01" />
+                            <span asp-validation-for="PayloadWeight" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Status" class="form-label">Status</label>
+                            <select asp-for="Status" class="form-select">
+                                <option value="SCHEDULED">Scheduled</option>
+                                <option value="IN_PROGRESS">In Progress</option>
+                                <option value="COMPLETED">Completed</option>
+                                <option value="CANCELLED">Cancelled</option>
+                            </select>
+                            <span asp-validation-for="Status" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Create Mission
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+} 
