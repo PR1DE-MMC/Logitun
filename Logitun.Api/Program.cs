@@ -1,6 +1,7 @@
 using DotNetEnv;
 using Logitun.Core.Interfaces;
 using Logitun.Infrastructure.Data;
+using Logitun.Infrastructure.Mapping;
 using Logitun.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -78,6 +79,11 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddScoped<ITruckService, TruckService>();
+builder.Services.AddScoped<ITimeOffService, TimeOffRequestService>();
+builder.Services.AddScoped<ILocationService, LocationService>();
+builder.Services.AddScoped<IMissionService, MissionService>();
 
 var app = builder.Build();
 
