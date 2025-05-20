@@ -1,5 +1,6 @@
 ﻿using Logitun.Core.Entities;
 using Logitun.Shared.DTOs;
+using Logitun.Shared.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

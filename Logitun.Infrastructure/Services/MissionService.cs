@@ -4,6 +4,7 @@ using Logitun.Core.Entities;
 using Logitun.Core.Interfaces;
 using Logitun.Infrastructure.Data;
 using Logitun.Shared.DTOs;
+using Logitun.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Logitun.Infrastructure.Services

@@ -1,0 +1,139 @@
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container-fluid">
+    <h1 class="h3 mb-4">Dashboard</h1>
+
+    <div class="row">
+        <div class="col-xl-3 col-md-6">
+            <div class="card dashboard-card bg-primary text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0">Total Trucks</h6>
+                            <h2 class="card-value mb-0">@Model.Trucks</h2>
+                        </div>
+                        <i class="bi bi-truck fs-1"></i>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" asp-controller="Trucks" asp-action="Index">View Details</a>
+                    <i class="bi bi-chevron-right text-white"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card dashboard-card bg-success text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0">Active Missions</h6>
+                            <h2 class="card-value mb-0">@Model.Missions</h2>
+                        </div>
+                        <i class="bi bi-map fs-1"></i>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" asp-controller="Missions" asp-action="Index">View Details</a>
+                    <i class="bi bi-chevron-right text-white"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card dashboard-card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0">Locations</h6>
+                            <h2 class="card-value mb-0">@Model.Locations</h2>
+                        </div>
+                        <i class="bi bi-geo-alt fs-1"></i>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" asp-controller="Locations" asp-action="Index">View Details</a>
+                    <i class="bi bi-chevron-right text-white"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card dashboard-card bg-info text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0">Time Off Requests</h6>
+                            <h2 class="card-value mb-0">@Model.TimeOffRequests</h2>
+                        </div>
+                        <i class="bi bi-calendar-check fs-1"></i>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" asp-controller="TimeOff" asp-action="Index">View Details</a>
+                    <i class="bi bi-chevron-right text-white"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="bi bi-truck me-1"></i>
+                    Recent Trucks
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-custom">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data will be loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="bi bi-map me-1"></i>
+                    Recent Missions
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-custom">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data will be loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Add JavaScript for dynamic data loading if needed
+    </script>
+} 

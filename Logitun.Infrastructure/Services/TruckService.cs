@@ -4,7 +4,9 @@ using Logitun.Core.Entities;
 using Logitun.Core.Interfaces;
 using Logitun.Infrastructure.Data;
 using Logitun.Shared.DTOs;
+using Logitun.Shared.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Logitun.Infrastructure.Services
 {
@@ -14,11 +16,13 @@ namespace Logitun.Infrastructure.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
+        private readonly ILogger<TruckService> _logger;
 
-        public TruckService(ApplicationDbContext context, IMapper mapper)
+        public TruckService(ApplicationDbContext context, IMapper mapper, ILogger<TruckService> logger)
         {
             _context = context;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public async Task<PagedResult<TruckDto>> GetPagedAsync(int page, int pageSize)
@@ -42,26 +46,83 @@ namespace Logitun.Infrastructure.Services
 
         public async Task<TruckDto> GetByIdAsync(int id)
         {
-            var truck = await _context.Trucks.FindAsync(id);
-            return truck == null ? null : _mapper.Map<TruckDto>(truck);
+            try
+            {
+                _logger.LogInformation("Retrieving truck with ID: {TruckId}", id);
+                var truck = await _context.Trucks
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(t => t.TruckId == id);
+
+                if (truck == null)
+                {
+                    _logger.LogWarning("Truck not found with ID: {TruckId}", id);
+                    return null;
+                }
+
+                var truckDto = _mapper.Map<TruckDto>(truck);
+                _logger.LogInformation("Successfully retrieved truck with ID: {TruckId}, PlateNumber: {PlateNumber}", 
+                    truckDto.TruckId, truckDto.PlateNumber);
+                return truckDto;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving truck with ID: {TruckId}", id);
+                throw;
+            }
         }
 
         public async Task<TruckDto> CreateAsync(TruckDto truckDto)
         {
-            var truck = _mapper.Map<Truck>(truckDto);
-            _context.Trucks.Add(truck);
-            await _context.SaveChangesAsync();
-            return _mapper.Map<TruckDto>(truck);
+            try
+            {
+                _logger.LogInformation("Creating truck with PlateNumber={PlateNumber}, Model={Model}, FuelType={FuelType}", 
+                    truckDto.PlateNumber, 
+                    truckDto.Model, 
+                    truckDto.FuelType);
+
+                var truck = _mapper.Map<Truck>(truckDto);
+                _context.Trucks.Add(truck);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Truck created successfully with ID: {TruckId}", truck.TruckId);
+                return _mapper.Map<TruckDto>(truck);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating truck: {Message}", ex.Message);
+                throw new Exception($"Error creating truck: {ex.Message}", ex);
+            }
         }
 
         public async Task<TruckDto> UpdateAsync(int id, TruckDto truckDto)
         {
-            var existing = await _context.Trucks.FindAsync(id);
-            if (existing == null) return null;
+            try
+            {
+                _logger.LogInformation("Updating truck with ID: {TruckId}", id);
+                var existing = await _context.Trucks
+                    .FirstOrDefaultAsync(t => t.TruckId == id);
 
-            _mapper.Map(truckDto, existing);
-            await _context.SaveChangesAsync();
-            return _mapper.Map<TruckDto>(existing);
+                if (existing == null)
+                {
+                    _logger.LogWarning("Truck not found for update with ID: {TruckId}", id);
+                    return null;
+                }
+
+                _logger.LogInformation("Found existing truck: PlateNumber={PlateNumber}, Model={Model}", 
+                    existing.PlateNumber, existing.Model);
+
+                _mapper.Map(truckDto, existing);
+                await _context.SaveChangesAsync();
+
+                var updatedDto = _mapper.Map<TruckDto>(existing);
+                _logger.LogInformation("Successfully updated truck with ID: {TruckId}", updatedDto.TruckId);
+                return updatedDto;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating truck with ID: {TruckId}", id);
+                throw;
+            }
         }
 
         public async Task<bool> DeleteAsync(int id)

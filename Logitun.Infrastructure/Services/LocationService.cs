@@ -2,6 +2,7 @@
 using AutoMapper.QueryableExtensions;
 using Logitun.Infrastructure.Data;
 using Logitun.Shared.DTOs;
+using Logitun.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 using Logitun.Core.Interfaces;
 using Logitun.Core.Entities;
