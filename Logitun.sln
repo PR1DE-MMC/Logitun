@@ -3,15 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36109.1 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logitun.Core", "Logitun.Core\Logitun.Core.csproj", "{25C433D6-78E9-4D53-8045-E721E1250119}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logitun.Infrastructure", "Logitun.Infrastructure\Logitun.Infrastructure.csproj", "{834FF6CA-36AC-4C17-B39A-45DFB464C5BD}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logitun.Shared", "Logitun.Shared\Logitun.Shared.csproj", "{E6587B70-C6A0-4E12-BA83-2640D757D7C2}"
-EndProject
+
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logitun.Api", "Logitun.Api\Logitun.Api.csproj", "{32103EAE-DE34-4CDF-99AA-0F0075D47259}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logitun.Mvc", "Logitun.Mvc\Logitun.Mvc.csproj", "{EE06101B-CDCD-421D-BFA1-D3414A25A04C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logitun.Infrastructure", "Logitun.Infrastructure\Logitun.Infrastructure.csproj", "{834FF6CA-36AC-4C17-B39A-45DFB464C5BD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logitun.Core", "Logitun.Core\Logitun.Core.csproj", "{25C433D6-78E9-4D53-8045-E721E1250119}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logitun.Shared", "Logitun.Shared\Logitun.Shared.csproj", "{E6587B70-C6A0-4E12-BA83-2640D757D7C2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
 	ProjectSection(SolutionItems) = preProject

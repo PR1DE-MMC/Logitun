@@ -21,7 +21,7 @@ namespace Logitun.Infrastructure.Data
             }
 
             var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-            optionsBuilder.UseNpgsql(connectionString, b => b.MigrationsAssembly("Logitun.Core"));
+            optionsBuilder.UseNpgsql(connectionString);
 
             return new ApplicationDbContext(optionsBuilder.Options);
         }

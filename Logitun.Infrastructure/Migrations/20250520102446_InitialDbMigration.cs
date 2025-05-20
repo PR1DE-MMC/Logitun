@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Logitun.Core.Migrations
+namespace Logitun.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class InitialDbMigration : Migration
