@@ -7,6 +7,7 @@ using Logitun.Shared.DTOs;
 using Microsoft.Extensions.Logging;
 using Logitun.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Logitun.Mvc.Controllers
 {
@@ -23,18 +24,21 @@ namespace Logitun.Mvc.Controllers
             _context = context;
         }
 
+        [AllowAnonymous]
         [HttpGet]
-        public IActionResult Login()
+        public IActionResult Login(string returnUrl = null)
         {
             if (User.Identity?.IsAuthenticated == true)
             {
                 return RedirectToAction("Index", "Home");
             }
+            ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
 
+        [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> Login(string username, string password)
+        public async Task<IActionResult> Login(string username, string password, string returnUrl = null)
         {
             try
             {
@@ -53,7 +57,7 @@ namespace Logitun.Mvc.Controllers
                         new Claim(ClaimTypes.Name, username),
                         new Claim("JWT", authResponse.Token)
                     };
-                    
+
                     if (user?.Information != null)
                     {
                         claims.Add(new Claim("FirstName", user.Information.FirstName));
@@ -64,7 +68,8 @@ namespace Logitun.Mvc.Controllers
                     var authProperties = new AuthenticationProperties
                     {
                         IsPersistent = true,
-                        ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
+                        ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7),
+                        RedirectUri = returnUrl
                     };
 
                     await HttpContext.SignInAsync(
@@ -72,6 +77,10 @@ namespace Logitun.Mvc.Controllers
                         new ClaimsPrincipal(claimsIdentity),
                         authProperties);
 
+                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                    {
+                        return Redirect(returnUrl);
+                    }
                     return RedirectToAction("Index", "Home");
                 }
             }
@@ -81,6 +90,7 @@ namespace Logitun.Mvc.Controllers
             }
 
             ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+            ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
 

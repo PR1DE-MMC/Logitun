@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Logitun.Core.Interfaces;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authorization;
+using System.Linq;
 
 namespace Logitun.Mvc.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly ITruckService _truckService;
@@ -28,19 +31,24 @@ namespace Logitun.Mvc.Controllers
 
         public async Task<IActionResult> Index()
         {
-            if (!User.Identity?.IsAuthenticated == true)
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
             try
             {
+                // Get all missions and filter for SCHEDULED or IN_PROGRESS
+                var missionsResult = await _missionService.GetPagedAsync(1, int.MaxValue);
+                var activeMissions = missionsResult.Items.Count(m =>
+                    m.Status == "SCHEDULED" || m.Status == "IN_PROGRESS");
+
+                // Get all time off requests and filter for PENDING
+                var timeOffResult = await _timeOffService.GetPagedAsync(1, int.MaxValue);
+                var pendingTimeOffRequests = timeOffResult.Items.Count(r =>
+                    r.Status == "PENDING");
+
                 var dashboardData = new
                 {
                     Trucks = (await _truckService.GetPagedAsync(1, 1)).TotalItems,
-                    Missions = (await _missionService.GetPagedAsync(1, 1)).TotalItems,
+                    Missions = activeMissions,
                     Locations = (await _locationService.GetPagedAsync(1, 1)).TotalItems,
-                    TimeOffRequests = (await _timeOffService.GetPagedAsync(1, 1)).TotalItems
+                    TimeOffRequests = pendingTimeOffRequests
                 };
 
                 return View(dashboardData);
@@ -52,4 +60,4 @@ namespace Logitun.Mvc.Controllers
             }
         }
     }
-} 
+}
