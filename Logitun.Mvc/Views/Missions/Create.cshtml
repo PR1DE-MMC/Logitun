@@ -1,5 +1,4 @@
-@model Logitun.Mvc.ViewModels.MissionCreateViewModel
-@using Logitun.Shared.DTOs
+@model Logitun.Shared.DTOs.MissionDto
 @{
     ViewData["Title"] = "Create Mission";
 }
@@ -15,7 +14,7 @@
     <div class="card">
         <div class="card-body">
             <form asp-controller="Missions" asp-action="Create" method="post">
-            @Html.AntiForgeryToken()
+                @Html.AntiForgeryToken()
                 @if (!ViewData.ModelState.IsValid)
                 {
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
@@ -25,36 +24,24 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label asp-for="TruckId" class="form-label">Truck</label>
-                            <select asp-for="TruckId" class="form-select">
+                            <select asp-for="TruckId" class="form-select" asp-items="@(ViewData["Trucks"] as SelectList)">
                                 <option value="">-- Select Truck --</option>
-                                @foreach (var truck in Model.AvailableTrucks)
-                                {
-                                    <option value="@truck.TruckId">@truck.PlateNumber</option>
-                                }
                             </select>
                             <span asp-validation-for="TruckId" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="OriginLocationId" class="form-label">Origin Location</label>
-                            <select asp-for="OriginLocationId" class="form-select">
+                            <select asp-for="OriginLocationId" class="form-select" asp-items="@(ViewData["Locations"] as SelectList)">
                                 <option value="">-- Select Origin --</option>
-                                @foreach (var location in Model.AvailableLocations)
-                                {
-                                    <option value="@location.LocationId">@location.Name</option>
-                                }
                             </select>
                             <span asp-validation-for="OriginLocationId" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="DestinationLocationId" class="form-label">Destination Location</label>
-                            <select asp-for="DestinationLocationId" class="form-select">
+                            <select asp-for="DestinationLocationId" class="form-select" asp-items="@(ViewData["Locations"] as SelectList)">
                                 <option value="">-- Select Destination --</option>
-                                @foreach (var location in Model.AvailableLocations)
-                                {
-                                    <option value="@location.LocationId">@location.Name</option>
-                                }
                             </select>
                             <span asp-validation-for="DestinationLocationId" class="text-danger"></span>
                         </div>
@@ -109,5 +96,7 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-} 
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

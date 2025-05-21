@@ -1,12 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Authorization;
 using Logitun.Shared.DTOs;
-using Logitun.Shared.Models;
-using Microsoft.Extensions.Logging;
 using Logitun.Core.Interfaces;
-using Logitun.Mvc.ViewModels;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 
 namespace Logitun.Mvc.Controllers
 {
@@ -41,21 +37,15 @@ namespace Logitun.Mvc.Controllers
         public async Task<IActionResult> Create()
         {
             _logger.LogInformation("Create action called");
-            var trucksResult = await _truckService.GetPagedAsync(1, 100);
-            var locationsResult = await _locationService.GetPagedAsync(1, 100);
-             _logger.LogInformation(trucksResult.Items[0].PlateNumber);
-            var viewModel = new MissionCreateViewModel
-            {
-                Mission = new MissionDto(),
-                AvailableTrucks = trucksResult.Items,
-                AvailableLocations = locationsResult.Items
-            };
-            return View(viewModel);
+
+            await PopulateDropdowns();
+
+            return View(new MissionDto());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([FromForm] MissionCreateViewModel viewModel)
+        public async Task<IActionResult> Create([FromForm] MissionDto mission)
         {
             _logger.LogInformation("Create POST action called for mission");
 
@@ -65,19 +55,16 @@ namespace Logitun.Mvc.Controllers
                     .SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage));
                 _logger.LogWarning("Model state is invalid. Errors: {Errors}", errors);
-                
-                var trucksResult = await _truckService.GetPagedAsync(1, 100);
-                var locationsResult = await _locationService.GetPagedAsync(1, 100);
-                
-                viewModel.AvailableTrucks = trucksResult.Items.ToList();
-                viewModel.AvailableLocations = locationsResult.Items.ToList();
-                return View(viewModel);
+
+                // Only repopulate dropdowns when returning to the view
+                await PopulateDropdowns();
+                return View(mission);
             }
 
             try
             {
-                _logger.LogInformation("Attempting to create mission");
-                var createdMission = await _missionService.CreateAsync(viewModel.Mission);
+                _logger.LogInformation("Attempting to create mission with data: {@Mission}", mission);
+                var createdMission = await _missionService.CreateAsync(mission);
                 _logger.LogInformation("Mission created successfully with ID: {MissionId}", createdMission.MissionId);
                 return RedirectToAction(nameof(Index));
             }
@@ -85,13 +72,10 @@ namespace Logitun.Mvc.Controllers
             {
                 _logger.LogError(ex, "Error creating mission: {Message}", ex.Message);
                 ModelState.AddModelError(string.Empty, $"Error creating mission: {ex.Message}");
-                
-                var trucksResult = await _truckService.GetPagedAsync(1, 100);
-                var locationsResult = await _locationService.GetPagedAsync(1, 100);
-                
-                viewModel.AvailableTrucks = trucksResult.Items.ToList();
-                viewModel.AvailableLocations = locationsResult.Items.ToList();
-                return View(viewModel);
+
+                // Only repopulate dropdowns when returning to the view
+                await PopulateDropdowns();
+                return View(mission);
             }
         }
 
@@ -108,15 +92,10 @@ namespace Logitun.Mvc.Controllers
                     return NotFound();
                 }
 
-                var viewModel = new MissionEditViewModel
-                {
-                    Mission = mission,
-                    AvailableTrucks = (await _truckService.GetPagedAsync(1, 100)).Items.ToList(),
-                    AvailableLocations = (await _locationService.GetPagedAsync(1, 100)).Items.ToList()
-                };
+                await PopulateDropdowns();
 
                 _logger.LogInformation("Retrieved mission for editing: ID={MissionId}", mission.MissionId);
-                return View(viewModel);
+                return View(mission);
             }
             catch (Exception ex)
             {
@@ -143,19 +122,15 @@ namespace Logitun.Mvc.Controllers
                     .SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage));
                 _logger.LogWarning("Model state is invalid. Errors: {Errors}", errors);
-                
-                var viewModel = new MissionEditViewModel
-                {
-                    Mission = mission,
-                    AvailableTrucks = (await _truckService.GetPagedAsync(1, 100)).Items.ToList(),
-                    AvailableLocations = (await _locationService.GetPagedAsync(1, 100)).Items.ToList()
-                };
-                return View(viewModel);
+
+                // Only repopulate dropdowns when returning to the view
+                await PopulateDropdowns();
+                return View(mission);
             }
 
             try
             {
-                _logger.LogInformation("Attempting to update mission");
+                _logger.LogInformation("Attempting to update mission: {@Mission}", mission);
                 var updatedMission = await _missionService.UpdateAsync(id, mission);
                 if (updatedMission == null)
                 {
@@ -170,14 +145,10 @@ namespace Logitun.Mvc.Controllers
             {
                 _logger.LogError(ex, "Error updating mission: {Message}", ex.Message);
                 ModelState.AddModelError(string.Empty, $"Error updating mission: {ex.Message}");
-                
-                var viewModel = new MissionEditViewModel
-                {
-                    Mission = mission,
-                    AvailableTrucks = (await _truckService.GetPagedAsync(1, 100)).Items.ToList(),
-                    AvailableLocations = (await _locationService.GetPagedAsync(1, 100)).Items.ToList()
-                };
-                return View(viewModel);
+
+                // Only repopulate dropdowns when returning to the view
+                await PopulateDropdowns();
+                return View(mission);
             }
         }
 
@@ -204,5 +175,16 @@ namespace Logitun.Mvc.Controllers
                 return RedirectToAction(nameof(Index));
             }
         }
+
+        private async Task PopulateDropdowns()
+        {
+            // Get all trucks and locations for dropdowns
+            var trucksResult = await _truckService.GetPagedAsync(1, 100);
+            var locationsResult = await _locationService.GetPagedAsync(1, 100);
+
+            // Convert to SelectList for easier use in views
+            ViewData["Trucks"] = new SelectList(trucksResult.Items, "TruckId", "PlateNumber");
+            ViewData["Locations"] = new SelectList(locationsResult.Items, "LocationId", "Name");
+        }
     }
-} 
+}

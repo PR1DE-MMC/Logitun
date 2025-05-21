@@ -57,6 +57,9 @@ namespace Logitun.Infrastructure.Services
         public async Task<MissionDto> CreateAsync(MissionDto dto)
         {
             var mission = _mapper.Map<Mission>(dto);
+            mission.StartDatetime = DateTime.SpecifyKind(mission.StartDatetime, DateTimeKind.Utc);
+            mission.EndDatetime = mission.EndDatetime == null ? null : DateTime.SpecifyKind((global::System.DateTime)mission.EndDatetime, DateTimeKind.Utc);
+
             _context.Missions.Add(mission);
             await _context.SaveChangesAsync();
             return _mapper.Map<MissionDto>(mission);
