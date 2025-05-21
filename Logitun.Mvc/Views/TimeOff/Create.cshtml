@@ -1,0 +1,104 @@
+@model Logitun.Shared.DTOs.TimeOffRequestDto
+
+@{
+    ViewData["Title"] = "Create Time Off Request";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Create Time Off Request</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Dashboard</a></li>
+        <li class="breadcrumb-item"><a asp-controller="TimeOff" asp-action="Index">Time Off Requests</a></li>
+        <li class="breadcrumb-item active">Create</li>
+    </ol>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-calendar-plus me-1"></i>
+            New Time Off Request
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" method="post" id="timeOffForm">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="DriverId" class="form-label">Driver</label>
+                            <select asp-for="DriverId" asp-items="@(ViewData["Drivers"] as SelectList)"
+                                class="form-select">
+                                <option value="">-- Select Driver --</option>
+                            </select>
+                            <span asp-validation-for="DriverId" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="StartDate" class="form-label">Start Date</label>
+                            <input asp-for="StartDate" class="form-control" type="date" />
+                            <span asp-validation-for="StartDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="EndDate" class="form-label">End Date</label>
+                            <input asp-for="EndDate" class="form-control" type="date" />
+                            <span asp-validation-for="EndDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Status" class="form-label">Status</label>
+                            <select asp-for="Status" class="form-select">
+                                <option value="PENDING">Pending</option>
+                                <option value="APPROVED">Approved</option>
+                                <option value="REJECTED">Rejected</option>
+                            </select>
+                            <span asp-validation-for="Status" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Create</button>
+                    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            $("#timeOffForm").validate({
+                rules: {
+                    "EndDate": {
+                        greaterThan: "#StartDate"
+                    }
+                },
+                messages: {
+                    "EndDate": {
+                        greaterThan: "End date must be after start date"
+                    }
+                }
+            });
+
+            $.validator.addMethod("greaterThan", function (value, element, param) {
+                var startDate = $(param).val();
+                if (!startDate || !value) return true;
+                return new Date(value) > new Date(startDate);
+            });
+        });
+    </script>
+}
