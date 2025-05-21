@@ -169,7 +169,7 @@ public class AuthService : IAuthService
 
         // Get unavailable driver IDs (those with accepted time off requests that include current date)
         var unavailableDriverIds = await _context.TimeOffRequests
-            .Where(t => t.Status == "ACCEPTED" &&
+            .Where(t => t.Status == "APPROVED" &&
                        t.StartDate.Date <= currentDate &&
                        t.EndDate.Date >= currentDate)
             .Select(t => t.DriverId)
