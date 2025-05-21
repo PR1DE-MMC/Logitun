@@ -34,4 +34,17 @@ public class AuthController : ControllerBase
         return Ok("User registered successfully with role ROLE_DRIVER.");
     }
 
+    [HttpGet("drivers")]
+    public async Task<ActionResult<IEnumerable<DriverDto>>> GetAllDrivers()
+    {
+        var drivers = await _authService.GetAllDriversAsync();
+        return Ok(drivers);
+    }
+
+    [HttpGet("drivers/available")]
+    public async Task<ActionResult<IEnumerable<DriverDto>>> GetAvailableDrivers()
+    {
+        var drivers = await _authService.GetAvailableDriversAsync();
+        return Ok(drivers);
+    }
 }

@@ -121,4 +121,61 @@ public class AuthService : IAuthService
         return true;
     }
 
+    public async Task<IEnumerable<DriverDto>> GetAllDriversAsync()
+    {
+        var drivers = await _context.AuthUsers
+            .Include(u => u.Credentials)
+                .ThenInclude(c => c.Roles)
+            .Include(u => u.Information)
+            .Where(u => u.Credentials.Roles.Any(r => r.Name == "ROLE_DRIVER"))
+            .Select(u => new DriverDto
+            {
+                UserId = u.UserId,
+                FirstName = u.Information.FirstName,
+                LastName = u.Information.LastName,
+                Email = u.Information.Email ?? string.Empty,
+                PhoneNumber = u.Information.PhoneNumber ?? string.Empty,
+                Cin = u.Information.Cin ?? string.Empty,
+                Birthdate = u.Information.Birthdate,
+                Login = u.Credentials.Login
+            })
+            .ToListAsync();
+
+        return drivers;
+    }
+
+    public async Task<IEnumerable<DriverDto>> GetAvailableDriversAsync()
+    {
+        var currentDate = DateTime.UtcNow.Date;
+
+        // Get all drivers
+        var allDrivers = await _context.AuthUsers
+            .Include(u => u.Credentials)
+                .ThenInclude(c => c.Roles)
+            .Include(u => u.Information)
+            .Where(u => u.Credentials.Roles.Any(r => r.Name == "ROLE_DRIVER"))
+            .Select(u => new DriverDto
+            {
+                UserId = u.UserId,
+                FirstName = u.Information.FirstName,
+                LastName = u.Information.LastName,
+                Email = u.Information.Email ?? string.Empty,
+                PhoneNumber = u.Information.PhoneNumber ?? string.Empty,
+                Cin = u.Information.Cin ?? string.Empty,
+                Birthdate = u.Information.Birthdate,
+                Login = u.Credentials.Login
+            })
+            .ToListAsync();
+
+        // Get unavailable driver IDs (those with accepted time off requests that include current date)
+        var unavailableDriverIds = await _context.TimeOffRequests
+            .Where(t => t.Status == "ACCEPTED" &&
+                       t.StartDate.Date <= currentDate &&
+                       t.EndDate.Date >= currentDate)
+            .Select(t => t.DriverId)
+            .ToListAsync();
+
+        // Filter out unavailable drivers
+        return allDrivers.Where(d => !unavailableDriverIds.Contains(d.UserId));
+    }
 }

@@ -31,6 +31,13 @@
                         </div>
 
                         <div class="mb-3">
+                            <label asp-for="DriverId" class="form-label">Driver</label>
+                            <select asp-for="DriverId" class="form-select" asp-items="@(ViewData["Drivers"] as SelectList)">
+                                <option value="">-- Select Driver --</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
                             <label asp-for="OriginLocationId" class="form-label">Origin Location</label>
                             <select asp-for="OriginLocationId" class="form-select" asp-items="@(ViewData["Locations"] as SelectList)">
                                 <option value="">-- Select Origin --</option>

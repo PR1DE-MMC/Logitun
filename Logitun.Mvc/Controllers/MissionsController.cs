@@ -12,17 +12,20 @@ namespace Logitun.Mvc.Controllers
         private readonly IMissionService _missionService;
         private readonly ITruckService _truckService;
         private readonly ILocationService _locationService;
+        private readonly IAuthService _authService;
         private readonly ILogger<MissionsController> _logger;
 
         public MissionsController(
             IMissionService missionService,
             ITruckService truckService,
             ILocationService locationService,
+            IAuthService authService,
             ILogger<MissionsController> logger)
         {
             _missionService = missionService;
             _truckService = truckService;
             _locationService = locationService;
+            _authService = authService;
             _logger = logger;
         }
 
@@ -181,10 +184,12 @@ namespace Logitun.Mvc.Controllers
             // Get all trucks and locations for dropdowns
             var trucksResult = await _truckService.GetPagedAsync(1, 100);
             var locationsResult = await _locationService.GetPagedAsync(1, 100);
+            var drivers = await _authService.GetAvailableDriversAsync();
 
             // Convert to SelectList for easier use in views
             ViewData["Trucks"] = new SelectList(trucksResult.Items, "TruckId", "PlateNumber");
             ViewData["Locations"] = new SelectList(locationsResult.Items, "LocationId", "Name");
+            ViewData["Drivers"] = new SelectList(drivers, "UserId", "Login");
         }
     }
 }
