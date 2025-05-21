@@ -3,6 +3,7 @@ using Logitun.Core.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authorization;
 using System.Linq;
+using Logitun.Shared.Models;
 
 namespace Logitun.Mvc.Controllers
 {
@@ -35,8 +36,8 @@ namespace Logitun.Mvc.Controllers
             {
                 // Get all missions and filter for SCHEDULED or IN_PROGRESS
                 var missionsResult = await _missionService.GetPagedAsync(1, int.MaxValue);
-                var activeMissions = missionsResult.Items.Count(m =>
-                    m.Status == "SCHEDULED" || m.Status == "IN_PROGRESS");
+                var activeMissions = missionsResult.Items.Where(m =>
+                    m.Status == "SCHEDULED" || m.Status == "IN_PROGRESS").ToList();
 
                 // Get all time off requests and filter for PENDING
                 var timeOffResult = await _timeOffService.GetPagedAsync(1, int.MaxValue);
@@ -46,9 +47,16 @@ namespace Logitun.Mvc.Controllers
                 var dashboardData = new
                 {
                     Trucks = (await _truckService.GetPagedAsync(1, 1)).TotalItems,
-                    Missions = activeMissions,
+                    Missions = activeMissions.Count,
                     Locations = (await _locationService.GetPagedAsync(1, 1)).TotalItems,
-                    TimeOffRequests = pendingTimeOffRequests
+                    TimeOffRequests = pendingTimeOffRequests,
+                    ActiveMissions = new PagedResult<Shared.DTOs.MissionDto>
+                    {
+                        Items = activeMissions,
+                        TotalItems = activeMissions.Count,
+                        Page = 1,
+                        PageSize = activeMissions.Count
+                    }
                 };
 
                 return View(dashboardData);
@@ -56,7 +64,20 @@ namespace Logitun.Mvc.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error loading dashboard data");
-                return View(new { Trucks = 0, Missions = 0, Locations = 0, TimeOffRequests = 0 });
+                return View(new
+                {
+                    Trucks = 0,
+                    Missions = 0,
+                    Locations = 0,
+                    TimeOffRequests = 0,
+                    ActiveMissions = new PagedResult<Shared.DTOs.MissionDto>
+                    {
+                        Items = new List<Shared.DTOs.MissionDto>(),
+                        TotalItems = 0,
+                        Page = 1,
+                        PageSize = 0
+                    }
+                });
             }
         }
     }
