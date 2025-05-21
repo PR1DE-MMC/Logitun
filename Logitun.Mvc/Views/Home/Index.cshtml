@@ -1,5 +1,7 @@
 @{
     ViewData["Title"] = "Dashboard";
+    var trucks = ViewData["Trucks"] as Dictionary<int, string>;
+    var drivers = ViewData["Drivers"] as Dictionary<Guid, string>;
 }
 
 <div class="container-fluid">
@@ -99,6 +101,8 @@
                                     <th>Status</th>
                                     <th>Start Date</th>
                                     <th>End Date</th>
+                                    <th>Truck</th>
+                                    <th>Driver</th>
                                     <th>Distance (km)</th>
                                     <th>Payload (kg)</th>
                                     <th>Actions</th>
@@ -122,6 +126,8 @@
                                         </td>
                                         <td>@mission.StartDatetime.ToString("g")</td>
                                         <td>@(mission.EndDatetime?.ToString("g") ?? "-")</td>
+                                        <td>@(mission.TruckId > 0 && trucks?.ContainsKey(mission.TruckId) == true ? trucks[mission.TruckId] : "-")</td>
+                                        <td>@(mission.DriverId != Guid.Empty && drivers?.ContainsKey(mission.DriverId) == true ? drivers[mission.DriverId] : "-")</td>
                                         <td>@(mission.DistanceKm?.ToString("N2") ?? "-")</td>
                                         <td>@(mission.PayloadWeight?.ToString("N2") ?? "-")</td>
                                         <td>

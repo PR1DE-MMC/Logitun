@@ -1,6 +1,8 @@
 @model Logitun.Shared.Models.PagedResult<Logitun.Shared.DTOs.MissionDto>
 @{
     ViewData["Title"] = "Missions";
+    var trucks = ViewData["Trucks"] as Dictionary<int, string>;
+    var drivers = ViewData["Drivers"] as Dictionary<Guid, string>;
 }
 
 <div class="container-fluid">
@@ -21,6 +23,8 @@
                             <th>Status</th>
                             <th>Start Date</th>
                             <th>End Date</th>
+                            <th>Truck</th>
+                            <th>Driver</th>
                             <th>Distance (km)</th>
                             <th>Payload (kg)</th>
                             <th>Actions</th>
@@ -44,6 +48,8 @@
                                 </td>
                                 <td>@mission.StartDatetime.ToString("g")</td>
                                 <td>@(mission.EndDatetime?.ToString("g") ?? "-")</td>
+                                <td>@(mission.TruckId.HasValue && trucks?.ContainsKey(mission.TruckId.Value) == true ? trucks[mission.TruckId.Value] : "-")</td>
+                                <td>@(mission.DriverId.HasValue && drivers?.ContainsKey(mission.DriverId.Value) == true ? drivers[mission.DriverId.Value] : "-")</td>
                                 <td>@(mission.DistanceKm?.ToString("N2") ?? "-")</td>
                                 <td>@(mission.PayloadWeight?.ToString("N2") ?? "-")</td>
                                 <td>

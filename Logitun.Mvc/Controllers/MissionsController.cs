@@ -33,6 +33,15 @@ namespace Logitun.Mvc.Controllers
         {
             _logger.LogInformation("Index action called with page {Page} and pageSize {PageSize}", page, pageSize);
             var missions = await _missionService.GetPagedAsync(page, pageSize);
+
+            // Get all trucks and drivers for lookup
+            var trucksResult = await _truckService.GetPagedAsync(1, 100);
+            var drivers = await _authService.GetAvailableDriversAsync();
+
+            // Create lookup dictionaries for quick access
+            ViewData["Trucks"] = trucksResult.Items.ToDictionary(t => t.TruckId, t => t.PlateNumber);
+            ViewData["Drivers"] = drivers.ToDictionary(d => d.UserId, d => $"{d.FirstName} {d.LastName} ({d.Email})");
+
             return View(missions);
         }
 
@@ -189,7 +198,11 @@ namespace Logitun.Mvc.Controllers
             // Convert to SelectList for easier use in views
             ViewData["Trucks"] = new SelectList(trucksResult.Items, "TruckId", "PlateNumber");
             ViewData["Locations"] = new SelectList(locationsResult.Items, "LocationId", "Name");
-            ViewData["Drivers"] = new SelectList(drivers, "UserId", "Login");
+            ViewData["Drivers"] = new SelectList(drivers.Select(d => new
+            {
+                d.UserId,
+                Display = $"{d.FirstName} {d.LastName} ({d.Email})"
+            }), "UserId", "Display");
         }
     }
 }

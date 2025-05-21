@@ -4,6 +4,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authorization;
 using System.Linq;
 using Logitun.Shared.Models;
+using Logitun.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Logitun.Mvc.Controllers
 {
@@ -15,29 +17,43 @@ namespace Logitun.Mvc.Controllers
         private readonly ILocationService _locationService;
         private readonly ITimeOffService _timeOffService;
         private readonly ILogger<HomeController> _logger;
+        private readonly ApplicationDbContext _context;
+        private readonly IAuthService _authService;
 
         public HomeController(
             ITruckService truckService,
             IMissionService missionService,
             ILocationService locationService,
             ITimeOffService timeOffService,
-            ILogger<HomeController> logger)
+            ILogger<HomeController> logger,
+            ApplicationDbContext context,
+            IAuthService authService)
         {
             _truckService = truckService;
             _missionService = missionService;
             _locationService = locationService;
             _timeOffService = timeOffService;
             _logger = logger;
+            _context = context;
+            _authService = authService;
         }
 
         public async Task<IActionResult> Index()
         {
             try
             {
-                // Get all missions and filter for SCHEDULED or IN_PROGRESS
+                // Get all missions with truck and driver information
                 var missionsResult = await _missionService.GetPagedAsync(1, int.MaxValue);
                 var activeMissions = missionsResult.Items.Where(m =>
                     m.Status == "SCHEDULED" || m.Status == "IN_PROGRESS").ToList();
+
+                // Get all trucks and drivers for lookup
+                var trucksResult = await _truckService.GetPagedAsync(1, 100);
+                var drivers = await _authService.GetAvailableDriversAsync();
+
+                // Create lookup dictionaries for quick access
+                ViewData["Trucks"] = trucksResult.Items.ToDictionary(t => t.TruckId, t => t.PlateNumber);
+                ViewData["Drivers"] = drivers.ToDictionary(d => d.UserId, d => $"{d.FirstName} {d.LastName} ({d.Email})");
 
                 // Get all time off requests and filter for PENDING
                 var timeOffResult = await _timeOffService.GetPagedAsync(1, int.MaxValue);
