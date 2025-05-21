@@ -1,7 +1,8 @@
 ﻿using Logitun.Core.Interfaces;
+using Logitun.Shared.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
-using Logitun.Shared.DTOs;
 
 namespace Logitun.Api.Controllers;
 
@@ -34,7 +35,9 @@ public class AuthController : ControllerBase
         return Ok("User registered successfully with role ROLE_DRIVER.");
     }
 
+    
     [HttpGet("drivers")]
+    [Authorize(Roles = "ROLE_ADMIN")]
     public async Task<ActionResult<IEnumerable<DriverDto>>> GetAllDrivers()
     {
         var drivers = await _authService.GetAllDriversAsync();
@@ -42,6 +45,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet("drivers/available")]
+    [Authorize(Roles = "ROLE_ADMIN")]
     public async Task<ActionResult<IEnumerable<DriverDto>>> GetAvailableDrivers()
     {
         var drivers = await _authService.GetAvailableDriversAsync();

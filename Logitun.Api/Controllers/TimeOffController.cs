@@ -1,6 +1,7 @@
 ﻿using Logitun.Core.Interfaces;
 using Logitun.Infrastructure.Services;
 using Logitun.Shared.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Logitun.Api.Controllers
@@ -17,6 +18,7 @@ namespace Logitun.Api.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "ROLE_ADMIN")]
         public async Task<IActionResult> GetPaged(int page = 1, int pageSize = 10)
         {
             var result = await _service.GetPagedAsync(page, pageSize);
@@ -24,6 +26,7 @@ namespace Logitun.Api.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "ROLE_ADMIN")]
         public async Task<IActionResult> Get(int id)
         {
             var item = await _service.GetByIdAsync(id);
@@ -32,6 +35,7 @@ namespace Logitun.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "ROLE_ADMIN,ROLE_DRIVER")]
         public async Task<IActionResult> Create([FromBody] TimeOffRequestDto dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -40,6 +44,7 @@ namespace Logitun.Api.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "ROLE_ADMIN")]
         public async Task<IActionResult> Update(int id, [FromBody] TimeOffRequestDto dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -49,6 +54,7 @@ namespace Logitun.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "ROLE_ADMIN")]
         public async Task<IActionResult> Delete(int id)
         {
             var deleted = await _service.DeleteAsync(id);
