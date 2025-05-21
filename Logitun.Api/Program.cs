@@ -84,6 +84,7 @@ builder.Services.AddScoped<ITruckService, TruckService>();
 builder.Services.AddScoped<ITimeOffService, TimeOffRequestService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IMissionService, MissionService>();
+builder.Services.AddScoped<IMockDataService, MockDataService>();
 
 var app = builder.Build();
 

@@ -175,7 +175,11 @@ namespace Logitun.Mvc.Controllers
         private async Task PopulateDriversDropdown()
         {
             var drivers = await _authService.GetAllDriversAsync();
-            ViewData["Drivers"] = new SelectList(drivers, "UserId", "Login");
+            ViewData["Drivers"] = new SelectList(drivers.Select(d => new
+            {
+                d.UserId,
+                Display = $"{d.FirstName} {d.LastName} ({d.Email})"
+            }), "UserId", "Display");
         }
     }
 }
