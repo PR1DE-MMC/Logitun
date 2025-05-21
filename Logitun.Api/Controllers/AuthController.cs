@@ -47,4 +47,13 @@ public class AuthController : ControllerBase
         var drivers = await _authService.GetAvailableDriversAsync();
         return Ok(drivers);
     }
+
+    [HttpPost("seed-admin")]
+    public async Task<IActionResult> CreateAdminAccount()
+    {
+        var success = await _authService.CreateAdminAccountAsync();
+        if (!success) return Conflict("Admin account already exists.");
+
+        return Ok("Admin account created successfully.");
+    }
 }

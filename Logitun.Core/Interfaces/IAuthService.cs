@@ -10,4 +10,5 @@ public interface IAuthService
     Task<bool> RegisterAsync(AuthRegisterRequest request);
     Task<IEnumerable<DriverDto>> GetAllDriversAsync();
     Task<IEnumerable<DriverDto>> GetAvailableDriversAsync();
+    Task<bool> CreateAdminAccountAsync();
 }

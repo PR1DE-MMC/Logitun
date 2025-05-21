@@ -178,4 +178,60 @@ public class AuthService : IAuthService
         // Filter out unavailable drivers
         return allDrivers.Where(d => !unavailableDriverIds.Contains(d.UserId));
     }
+
+    public async Task<bool> CreateAdminAccountAsync()
+    {
+        // Check if admin already exists
+        var existingAdmin = await _context.AuthCredentials
+            .Include(c => c.Roles)
+            .FirstOrDefaultAsync(c => c.Login == "admin@logitun.com");
+
+        if (existingAdmin != null)
+            return false;
+
+        // Get or create ROLE_ADMIN
+        var role = await _context.AuthRoles.FindAsync("ROLE_ADMIN");
+        if (role == null)
+        {
+            role = new Role { Name = "ROLE_ADMIN" };
+            _context.AuthRoles.Add(role);
+        }
+
+        // Create PersonalInformation
+        var info = new PersonalInformation
+        {
+            FirstName = "Admin",
+            LastName = "Log",
+            Birthdate = new DateTime(2025, 5, 21, 11, 34, 13, DateTimeKind.Utc),
+            PhoneNumber = "12345678",
+            Email = "admin@logitun.com",
+            Cin = "87654321"
+        };
+
+        _context.AuthInformation.Add(info);
+        await _context.SaveChangesAsync();
+
+        // Create Credentials
+        var credentials = new Credentials
+        {
+            Login = "admin@logitun.com",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin"),
+            Activated = true,
+            LangKey = "fr",
+            Roles = new List<Role> { role }
+        };
+        _context.AuthCredentials.Add(credentials);
+        await _context.SaveChangesAsync();
+
+        // Create User
+        var user = new User
+        {
+            InformationId = info.InformationId,
+            CredentialsId = credentials.CredentialId
+        };
+        _context.AuthUsers.Add(user);
+
+        await _context.SaveChangesAsync();
+        return true;
+    }
 }
